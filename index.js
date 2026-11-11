@@ -20,19 +20,13 @@ export const inject = ['tools', 'systemPrompt']
 
 export function apply(ctx) {
   ctx.tools.register(tool(ctx))
-  const sections = new Map()
+  // The notice rides the agent's own scope, so it unwinds with the agent.
   ctx.on('agent/created', ({ agent }) => {
-    const dispose = agent.ctx.effect(() => agent.ctx.systemPrompt.section({
+    agent.ctx.effect(() => agent.ctx.systemPrompt.section({
       name: 'branch-worktree:notice',
       order: 910,
       text: () => noticeOf(agent),
     }))
-    sections.set(String(agent.id), dispose)
-  })
-  ctx.on('agent/disposed', ({ agent }) => { sections.delete(String(agent.id)) })
-  ctx.effect(() => () => {
-    for (const dispose of sections.values()) dispose()
-    sections.clear()
   })
 }
 
