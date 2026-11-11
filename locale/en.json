@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Branch worktrees",
+    "description": "Give every branch its own directory: sessions on one repository never share files, and each branch commits and opens its own PR."
+  }
+}

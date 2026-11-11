@@ -1,0 +1,23 @@
+{
+  "name": "dsh-branch-worktree",
+  "version": "0.1.0",
+  "private": false,
+  "description": "同一个仓库的不同分支各用一个独立目录干活：互不干扰，各自提交，各自开 PR。",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": ["index.js", "cordis.patch.yml", "locale/*.json", "icon.svg", "README.md", "LICENSE"],
+  "keywords": ["dsh", "dsh-plugin", "deepseek-harness", "git", "worktree", "branch", "pull-request", "plugin"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/walldong/dsh-branch-worktree.git" },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" }
+  },
+  "engines": { "dsh": ">=0.2.1" }
+}
