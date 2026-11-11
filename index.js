@@ -16,14 +16,11 @@ const run = promisify(execFile)
 /** Managed worktrees live outside the repository, so a checkout never shows a stray untracked dir. */
 const ROOT = join(homedir(), '.dsh', 'worktrees')
 
-export const inject = ['agents', 'systemPrompt']
+export const inject = ['tools', 'systemPrompt']
 
 export function apply(ctx) {
+  ctx.tools.register(tool(ctx))
   const sections = new Map()
-  ctx.effect(() => {
-    const disposeTool = ctx.inject(['tools'], (tools) => tools.register(tool(ctx)))
-    return () => { if (typeof disposeTool === 'function') disposeTool() }
-  })
   ctx.on('agent/created', ({ agent }) => {
     const dispose = agent.ctx.effect(() => agent.ctx.systemPrompt.section({
       name: 'branch-worktree:notice',
@@ -46,7 +43,7 @@ function tool(ctx) {
       + 'open（从主干开新分支和独立目录，Harness 侧边栏会多出一个同名项目）| status（当前目录的分支、改动数、领先提交数、PR）'
       + '| commit（提交当前目录的全部改动）| push（推到 origin）| pr（没有就开一个，未推送会先推送）'
       + '| list（仓库里所有分支目录）| close（删掉目录，分支和提交都保留）。'
-      + '分支目录里的 .git 在沙箱外，所以提交、推送、开 PR 都走这个工具，不要直接跑 git commit。',
+      + '分支目录里的 .git 在沙箱外：git log / git diff 照常用，但要写 .git 的操作（add、commit、push、开 PR）都走这个工具。',
     parameters: {
       type: 'object',
       properties: {

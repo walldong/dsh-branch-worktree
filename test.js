@@ -25,19 +25,20 @@ sh(repo, 'git', 'add', '-A')
 sh(repo, 'git', 'commit', '-m', 'init')
 sh(repo, 'git', 'push', '-u', 'origin', 'main')
 
-// Fake Host: the tool only needs a directory per agent, plus optional services.
+// Fake Host: the plugin needs a tool registry and an agent-created listener.
 const workspaces = []
 const tools = new Map()
+let created = null
 const ctx = {
   effect(fn) { fn() },
-  on() {},
+  on(event, handler) { if (event === 'agent/created') created = handler },
+  tools: { register: (tool) => { tools.set(tool.name, tool); return () => tools.delete(tool.name) } },
   get(name) {
     if (name === 'workspaceRegistry') {
       return { create: async (path, title) => { workspaces.push({ path, title }); return { id: `w${workspaces.length}`, title } } }
     }
     return undefined
   },
-  inject(_names, fn) { fn({ register: (tool) => { tools.set(tool.name, tool); return () => {} } }) },
 }
 const { apply } = await import('./index.js')
 apply(ctx)
@@ -128,13 +129,11 @@ const prompted = {
   id: 's1', session: { header: { cwd: b.path } },
   ctx: { effect: (fn) => fn(), systemPrompt: { section: (s) => { sections.set('s1', s); return () => {} } } },
 }
-const created = []
-apply({ ...ctx, on: (event, handler) => { if (event === 'agent/created') created.push(handler) } })
-created[0]({ agent: prompted })
+created({ agent: prompted })
 const notice = sections.get('s1').text()
 assert(notice.includes('repo_branch') && notice.includes(b.path), 'a branch session is told how to commit')
 const plain = { id: 's2', session: { header: { cwd: repo } }, ctx: { effect: (fn) => fn(), systemPrompt: { section: (s) => { sections.set('s2', s); return () => {} } } } }
-created[0]({ agent: plain })
+created({ agent: plain })
 assert(sections.get('s2').text() === '', 'the main checkout gets no notice')
 
 assert(readFileSync(join(b.path, 'typo.md'), 'utf8') === 'fix\n', 'work survives in the surviving worktree')
