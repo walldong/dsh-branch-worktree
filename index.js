@@ -286,6 +286,7 @@ async function entryOf(path, branch = null) {
 }
 
 async function prOf(cwd) {
+  if (!await onGithub(cwd)) return null
   const out = await gh(cwd, ['pr', 'view', '--json', 'url,state,number'])
   if (!out) return null
   try {
@@ -294,6 +295,12 @@ async function prOf(cwd) {
   } catch {
     return null
   }
+}
+
+/** `gh` only answers for a GitHub remote, and asking it otherwise costs a network round trip. */
+async function onGithub(cwd) {
+  const url = await git(cwd, ['remote', 'get-url', 'origin'], { ok: true })
+  return /github\.com[:/]/i.test(url)
 }
 
 async function git(cwd, args, { ok = false } = {}) {

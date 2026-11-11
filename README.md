@@ -82,6 +82,10 @@ agent 自己会用，你也可以直接说："开个 `feat/login` 分支做登�
 node test.js
 ```
 
+自检用一个临时仓库 + 裸 origin，验证：两分支目录互不可见、各自提交、推送设置 upstream、关目录不丢分支、同一分支重开复用同一目录、主干不能被移除、没 remote 的 push 和没有 GitHub remote 的 PR 都会明确报错。
+
+真实 GitHub 路径也跑过一遍：新建私有仓库 → 开两个分支 → 各自提交 → 各自开 PR（#2、#3）→ 关目录，分支都还在。
+
 ## License
 
 MIT
