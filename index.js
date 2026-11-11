@@ -203,7 +203,7 @@ function noticeOf(agent) {
   return [
     `你在独立的分支目录里干活：${cwd}。`,
     '这个目录和仓库的其他分支互不影响，你的改动只落在自己的分支上。',
-    '提交、推送、开 PR 一律用 repo_branch 工具（commit / push / pr）：这里的 .git 在沙箱外，直接跑 git commit 会被拒绝。',
+    '这里的 .git 是一个指向主仓库的指针，在沙箱外：读历史（git log / git diff）照常用，但凡是会写 .git 的操作都走 repo_branch 工具——status 查改动、commit 提交、push 推送、pr 开 PR。直接跑 git add/commit 会被拒绝。',
     '一个分支一个 PR，别在同一个分支里攒无关的改动；别的活就 open 一个新分支。',
   ].join('\n')
 }
